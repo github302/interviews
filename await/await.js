@@ -1,78 +1,66 @@
-function getData() {
-    return new Promise((resolve, reject) => {
-        setTimeout(() => resolve("data"), 1000);
-    });
-} 
-
-async function test() {
-    const data = await getData();
-    console.log("Data:", data);
-    const data2 = await getData();
-    console.log("data2:", data2);
-    return "success";
-}
-
-test().then((res) => {
-    console.log(res);
-});
-
-
-function* testG() {
-    const data = yield getData();
-    console.log("data:", data);
-    const data2 = yield getData();
-    console.log("data2", data2);
-    return "success";
-}
 /**
- * 手动调用generator方法
+ * Definition for a binary tree node.
  */
-function test1() {
-    const gen = testG();
-    console.log(gen);
-    var dataPromise = gen.next().value;
-    console.log(dataPromise);
-    dataPromise.then((value1) => {
-        console.log("value1:", value1);
-        var dataPromise2 = gen.next(value1).value;
-
-        dataPromise2.then((value2) => {
-            console.log("value2:", value2);
-            gen.next(value2);
-        })
-    })
+function TreeNode(val) {
+    this.val = val;
+    this.left = this.right = null;
 }
-test1();
 
 /**
- * 用 generator 实现 await
- * @param {*} generatorFunc 
+ * @param {TreeNode} root
  */
-function asyncToGenerator(generatorFunc) {
-    return function() {
-        const gen = generatorFunc.apply(this, arguments);
-        return new Promise((resolve, reject) => {
-            function step(key, arg) {
-                let generatorResult;
-                try {
-                    generatorResult = gen[key](arg);
-                } catch(err) {
-                    return reject(err);
-                }
+var BSTIterator = function(root) {
+    this.list = [];
+    this.current = 0;
 
-                const { value, done } = generatorResult;
-                if (done) {
-                    return resolve(value);
-                }
-                return Promise.resolve(value).then(
-                    (val) => step('next', val),
-                    err => step('throw', err),
-                )
-            }
-            step("next");
-        })
+    function travser(element) {
+        if (element == null)
+            return;
+        travser(element.left);
+        this.list.push(element.left);
+        travser(element.right);
     }
-}
+    travser(root);
+};
 
-var test2 = asyncToGenerator(testG);
-test2().then((res) => console.log(res));
+/**
+ * @return the next smallest number
+ * @return {number}
+ */
+BSTIterator.prototype.next = function() {
+    return this.list[this.current++];
+}
+;
+
+/**
+ * @return whether we have a next smallest number
+ * @return {boolean}
+ */
+BSTIterator.prototype.hasNext = function() {
+    return !!(this.current < this.list.length);
+}
+;
+
+/**
+ * Your BSTIterator object will be instantiated and called as such:
+ * var obj = new BSTIterator(root)
+ * var param_1 = obj.next()
+ * var param_2 = obj.hasNext()
+ */
+
+var root = new TreeNode(7);
+var obj2 = new TreeNode(15);
+obj2.left = new TreeNode(9);
+obj2.right = new TreeNode(20);
+root.left = new TreeNode(3);
+root.right = obj2;
+
+var obj = new BSTIterator(root);
+obj.next();
+obj.hasNext();
+obj.next();
+obj.hasNext();
+obj.next();
+obj.hasNext();
+obj.next();
+obj.hasNext();
